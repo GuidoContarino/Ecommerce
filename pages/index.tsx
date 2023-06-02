@@ -17,14 +17,21 @@ import {
   Text,
   Flex,
   Spacer,
+  Divider,
+  Input,
+  Select,
 } from "@chakra-ui/react";
 import styled from "styled-components";
 import { Product } from "@/product/types";
+import Link from "next/link";
 
 interface Props {
   products: Product[];
 }
 
+/* Función parseCurrency toma un valor numérico 
+   y lo convierte en una representación formateada de la moneda. 
+   En este caso, se utiliza la localización "es-Ar" para mostrar el símbolo de la moneda en pesos argentinos. */
 function parseCurrency(value: number): string {
   return value.toLocaleString("es-Ar", {
     style: "currency",
@@ -39,10 +46,14 @@ const StyledDrawer = styled(Drawer)`
 `;
 
 const IndexRoute: React.FC<Props> = ({ products }) => {
+  // Estado del carrito y producto seleccionado
   const [cart, setCart] = useState<Product[]>([]);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isProductDrawerOpen, setIsProductDrawerOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
+  // Manejadores para abrir y cerrar el Drawer
   const handleOpenProductDrawer = (product: Product) => {
     setSelectedProduct(product);
     setIsProductDrawerOpen(true);
@@ -52,6 +63,32 @@ const IndexRoute: React.FC<Props> = ({ products }) => {
     setIsProductDrawerOpen(false);
   };
 
+  // Manejador para cambiar la categoría seleccionada
+  const handleCategoryChange = (category: string) => {
+    setSelectedCategory(category);
+  };
+
+  // Filtra los productos en función de la categoría seleccionada y el término de búsqueda
+  const filteredProducts = React.useMemo(() => {
+    let filtered = products;
+
+    if (selectedCategory) {
+      filtered = filtered.filter(
+        (product) => product.category === selectedCategory
+      );
+    }
+
+    if (searchTerm) {
+      const normalizedSearchTerm = searchTerm.toLowerCase();
+      filtered = filtered.filter((product) =>
+        product.title.toLowerCase().includes(normalizedSearchTerm)
+      );
+    }
+
+    return filtered;
+  }, [products, selectedCategory, searchTerm]);
+
+  // Generación del texto para el pedido
   const text = React.useMemo(
     () =>
       cart
@@ -72,11 +109,38 @@ const IndexRoute: React.FC<Props> = ({ products }) => {
 
   return (
     <Stack spacing={6}>
+      <Stack direction="row" spacing={4}>
+        <Flex flex={1}>
+          <Text color="white">Buscar producto:</Text>
+          <Input
+            placeholder="Ingrese un término de búsqueda"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </Flex>
+        <Flex flex={1}>
+          <Text color="white">Filtrar por categoría:</Text>
+          <Select
+            placeholder="Todas las categorías"
+            value={selectedCategory}
+            onChange={(e) => handleCategoryChange(e.target.value)}
+          >
+            <option value="">Todas las categorías</option>
+            {Array.from(
+              new Set(products.map((product) => product.category))
+            ).map((category) => (
+              <option key={category} value={category}>
+                {category}
+              </option>
+            ))}
+          </Select>
+        </Flex>
+      </Stack>
       <Grid templateColumns="repeat(auto-fill, minmax(240px,1fr))" gap={6}>
-        {products.map((product) => (
+        {filteredProducts.map((product) => (
           <Stack
             key={product.id}
-            border="1px solid white"
+            border="1px solid gray"
             spacing={3}
             backgroundColor="black"
             borderRadius="md"
@@ -138,6 +202,7 @@ const IndexRoute: React.FC<Props> = ({ products }) => {
             <Text fontSize="xl" margin={4} marginTop={5} color="gray.400">
               {selectedProduct?.description}
             </Text>
+            <Divider />
             <Flex>
               <Text fontSize="xl" margin={4} color="white">
                 Total
@@ -179,10 +244,20 @@ const IndexRoute: React.FC<Props> = ({ products }) => {
               text
             )}`}
           >
-            Completar Pedido ({cart.length} productos)
+            Ver Pedido ({cart.length} productos)
           </Button>
         </Stack>
       )}
+      <Divider />
+      <Flex justifyContent="center">
+        <Text color="white">
+          © Copyright 2023. Creado Por -
+          <Link href="https://www.linkedin.com/in/guido-contarino/" passHref>
+            Guido Contarino
+          </Link>
+          - para Quimica Gr
+        </Text>
+      </Flex>
     </Stack>
   );
 };
