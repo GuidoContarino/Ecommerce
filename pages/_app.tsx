@@ -1,4 +1,5 @@
 import React from "react";
+import Link from "next/link";
 import {
   ChakraProvider,
   Container,
@@ -8,7 +9,9 @@ import {
   Text,
   Box,
   Divider,
+  Flex,
 } from "@chakra-ui/react";
+import { AiFillInstagram, AiOutlineWhatsApp } from "react-icons/ai";
 import { AppProps } from "next/app";
 import theme from "../theme";
 
@@ -30,6 +33,14 @@ const App: React.FC<AppProps> = ({ Component, pageProps }) => {
             <Text color="white">
               Venta de Productos de Limpieza y Belleza Corporal Online
             </Text>
+            <Flex gap={3}>
+              <Link href="https://www.instagram.com/grquimica/">
+                <AiFillInstagram size="3rem" color="white" />
+              </Link>
+              <Link href="https://wa.me/5491130429802">
+                <AiOutlineWhatsApp size="3rem" color="white" />
+              </Link>
+            </Flex>
           </VStack>
           <Divider marginY={6} />
           <Component {...pageProps} />

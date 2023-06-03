@@ -1,59 +1,26 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import React from "react";
-import api from "@/product/api";
 import { GetStaticProps } from "next";
-import {
-  Button,
-  Drawer,
-  DrawerBody,
-  DrawerCloseButton,
-  DrawerContent,
-  DrawerHeader,
-  DrawerOverlay,
-  DrawerFooter,
-  Grid,
-  Image,
-  Stack,
-  Text,
-  Flex,
-  Spacer,
-  Divider,
-  Input,
-  Select,
-} from "@chakra-ui/react";
-import styled from "styled-components";
-import { Product } from "@/product/types";
+import { Button, Grid, Stack, Text, Flex, Divider } from "@chakra-ui/react";
 import Link from "next/link";
+import ProductCard from "../components/ProductCard";
+import ProductDrawer from "../components/ProductDrawer";
+import { parseCurrency } from "../components/utils";
+import api from "@/product/api";
+import { Product } from "../product/types";
+import ProductFiltres from "../components/ProductFiltres";
 
 interface Props {
   products: Product[];
 }
 
-/* Función parseCurrency toma un valor numérico 
-   y lo convierte en una representación formateada de la moneda. 
-   En este caso, se utiliza la localización "es-Ar" para mostrar el símbolo de la moneda en pesos argentinos. */
-function parseCurrency(value: number): string {
-  return value.toLocaleString("es-Ar", {
-    style: "currency",
-    currency: "ARS",
-  });
-}
-
-const StyledDrawer = styled(Drawer)`
-  .chakra-drawer__content {
-    background-color: white;
-  }
-`;
-
 const IndexRoute: React.FC<Props> = ({ products }) => {
-  // Estado del carrito y producto seleccionado
   const [cart, setCart] = useState<Product[]>([]);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isProductDrawerOpen, setIsProductDrawerOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
-  // Manejadores para abrir y cerrar el Drawer
   const handleOpenProductDrawer = (product: Product) => {
     setSelectedProduct(product);
     setIsProductDrawerOpen(true);
@@ -63,13 +30,11 @@ const IndexRoute: React.FC<Props> = ({ products }) => {
     setIsProductDrawerOpen(false);
   };
 
-  // Manejador para cambiar la categoría seleccionada
   const handleCategoryChange = (category: string) => {
     setSelectedCategory(category);
   };
 
-  // Filtra los productos en función de la categoría seleccionada y el término de búsqueda
-  const filteredProducts = React.useMemo(() => {
+  const filteredProducts = useMemo(() => {
     let filtered = products;
 
     if (selectedCategory) {
@@ -79,15 +44,18 @@ const IndexRoute: React.FC<Props> = ({ products }) => {
     }
 
     if (searchTerm) {
-      const normalizedSearchTerm = searchTerm.toLowerCase();
       filtered = filtered.filter((product) =>
-        product.title.toLowerCase().includes(normalizedSearchTerm)
+        product.title.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
     return filtered;
   }, [products, selectedCategory, searchTerm]);
 
+  const categories = useMemo(
+    () => Array.from(new Set(products.map((product) => product.category))),
+    [products]
+  );
   // Generación del texto para el pedido
   const text = React.useMemo(
     () =>
@@ -109,126 +77,32 @@ const IndexRoute: React.FC<Props> = ({ products }) => {
 
   return (
     <Stack spacing={6}>
-      <Stack direction="row" spacing={4}>
-        <Flex flex={1}>
-          <Text color="white">Buscar producto:</Text>
-          <Input
-            placeholder="Ingrese un término de búsqueda"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </Flex>
-        <Flex flex={1}>
-          <Text color="white">Filtrar por categoría:</Text>
-          <Select
-            placeholder="Todas las categorías"
-            value={selectedCategory}
-            onChange={(e) => handleCategoryChange(e.target.value)}
-          >
-            <option value="">Todas las categorías</option>
-            {Array.from(
-              new Set(products.map((product) => product.category))
-            ).map((category) => (
-              <option key={category} value={category}>
-                {category}
-              </option>
-            ))}
-          </Select>
-        </Flex>
-      </Stack>
+      <ProductFiltres
+        searchTerm={searchTerm}
+        selectedCategory={selectedCategory}
+        onSearchTermChange={setSearchTerm}
+        onCategoryChange={handleCategoryChange}
+        categories={categories}
+      />
       <Grid templateColumns="repeat(auto-fill, minmax(240px,1fr))" gap={6}>
         {filteredProducts.map((product) => (
-          <Stack
+          <ProductCard
             key={product.id}
-            border="1px solid gray"
-            spacing={3}
-            backgroundColor="black"
-            borderRadius="md"
-            padding={4}
+            product={product}
             onClick={() => handleOpenProductDrawer(product)}
-            cursor="pointer"
-          >
-            <Image
-              maxHeight="unset"
-              objectFit="contain"
-              borderRadius="md"
-              src={product.image}
-              alt={product.title}
-            />
-            <Stack spacing={1}>
-              <Text textAlign="center" color="white">
-                {product.title}
-              </Text>
-              <Text color="white" textAlign="center" fontSize={13}>
-                {product.description}
-              </Text>
-              <Text textAlign="center" color="blue.600">
-                {parseCurrency(product.price)}
-              </Text>
-            </Stack>
-          </Stack>
+          />
         ))}
       </Grid>
-      <StyledDrawer
-        size="md"
-        placement="right"
+      <ProductDrawer
         isOpen={isProductDrawerOpen}
         onClose={handleCloseProductDrawer}
-      >
-        <DrawerOverlay />
-        <DrawerContent backgroundColor="black">
-          <DrawerCloseButton
-            color="white"
-            backgroundColor="black"
-            borderRadius="md"
-            border="2px solid gray"
-            width="4rem"
-            height="4rem"
-          />
-          <DrawerHeader>
-            <Image
-              width="100%"
-              borderRadius="md"
-              margin={0}
-              objectFit="contain"
-              src={selectedProduct?.image}
-              alt={selectedProduct?.title}
-            />
-          </DrawerHeader>
-          <DrawerBody>
-            <Text fontSize="2xl" margin={4} color="white">
-              {selectedProduct?.title}
-            </Text>
-            <Text fontSize="xl" margin={4} marginTop={5} color="gray.400">
-              {selectedProduct?.description}
-            </Text>
-            <Divider />
-            <Flex>
-              <Text fontSize="xl" margin={4} color="white">
-                Total
-              </Text>
-              <Spacer />
-              <Text fontSize="xl" margin={4} color="white">
-                $ {selectedProduct?.price}
-              </Text>
-            </Flex>
-          </DrawerBody>
-          <DrawerFooter>
-            <Button
-              backgroundColor="white"
-              width="100%"
-              bottom="0"
-              border="2px solid blue"
-              size="sm"
-              onClick={() => {
-                setCart((cart) => cart.concat(selectedProduct));
-              }}
-            >
-              Agregar
-            </Button>
-          </DrawerFooter>
-        </DrawerContent>
-      </StyledDrawer>
+        product={selectedProduct}
+        onAddToCart={() => {
+          if (selectedProduct) {
+            setCart((cart) => [...cart, selectedProduct]);
+          }
+        }}
+      />
       {Boolean(cart.length) && (
         <Stack
           position="sticky"
@@ -244,7 +118,7 @@ const IndexRoute: React.FC<Props> = ({ products }) => {
               text
             )}`}
           >
-            Ver Pedido ({cart.length} productos)
+            Completar Pedido ({cart.length} productos)
           </Button>
         </Stack>
       )}
