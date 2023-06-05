@@ -11,6 +11,7 @@ import {
   Divider,
   Flex,
 } from "@chakra-ui/react";
+import Head from "next/head";
 import { AiFillInstagram, AiOutlineWhatsApp } from "react-icons/ai";
 import { AppProps } from "next/app";
 import theme from "../theme";
@@ -18,6 +19,9 @@ import theme from "../theme";
 const App: React.FC<AppProps> = ({ Component, pageProps }) => {
   return (
     <ChakraProvider theme={theme}>
+      <Head>
+        <title>Quimica Gr</title>
+      </Head>
       <Box padding={4} backgroundColor="black">
         <Container
           backgroundColor="black"
