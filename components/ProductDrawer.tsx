@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   Drawer,
   DrawerBody,
@@ -20,7 +20,7 @@ interface ProductDrawerProps {
   isOpen: boolean;
   onClose: () => void;
   product: Product | null;
-  onAddToCart: () => void;
+  onAddToCart: (quantity: number) => void;
 }
 
 const ProductDrawer: React.FC<ProductDrawerProps> = ({
@@ -29,6 +29,24 @@ const ProductDrawer: React.FC<ProductDrawerProps> = ({
   product,
   onAddToCart,
 }) => {
+  const [quantity, setQuantity] = useState(1);
+  const [totalPrice, setTotalPrice] = useState(0);
+
+  useEffect(() => {
+    if (product) {
+      const newTotalPrice = product.price * quantity;
+      setTotalPrice(newTotalPrice);
+    }
+  }, [product, quantity]);
+
+  const handleAddToCart = () => {
+    onAddToCart(quantity);
+  };
+
+  const handleQuantityChange = (value: number) => {
+    setQuantity(value);
+  };
+
   return (
     <Drawer size="md" placement="right" isOpen={isOpen} onClose={onClose}>
       <DrawerOverlay />
@@ -58,6 +76,32 @@ const ProductDrawer: React.FC<ProductDrawerProps> = ({
           <Text fontSize="xl" margin={4} marginTop={5} color="gray.400">
             {product?.description}
           </Text>
+
+          <Flex alignItems="center" marginTop={4}>
+            <Text fontSize="xl" margin={4} color="white">
+              Cantidad:
+            </Text>
+            <Button
+              colorScheme="blue"
+              borderRadius={999}
+              size="sm"
+              onClick={() => handleQuantityChange(quantity - 1)}
+              disabled={quantity <= 1}
+            >
+              -
+            </Button>
+            <Text fontSize="xl" margin={4} color="white">
+              {quantity}
+            </Text>
+            <Button
+              colorScheme="blue"
+              borderRadius={999}
+              size="sm"
+              onClick={() => handleQuantityChange(quantity + 1)}
+            >
+              +
+            </Button>
+          </Flex>
           <Divider />
           <Flex>
             <Text fontSize="xl" margin={4} color="white">
@@ -65,7 +109,7 @@ const ProductDrawer: React.FC<ProductDrawerProps> = ({
             </Text>
             <Spacer />
             <Text fontSize="xl" margin={4} color="white">
-              $ {product?.price}
+              $ {totalPrice.toLocaleString()}
             </Text>
           </Flex>
         </DrawerBody>
@@ -76,7 +120,7 @@ const ProductDrawer: React.FC<ProductDrawerProps> = ({
             bottom="0"
             border="2px solid rgb(29 40 58)"
             size="sm"
-            onClick={onAddToCart}
+            onClick={handleAddToCart}
           >
             Agregar
           </Button>
