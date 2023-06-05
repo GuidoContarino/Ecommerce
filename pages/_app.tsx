@@ -30,7 +30,7 @@ const App: React.FC<AppProps> = ({ Component, pageProps }) => {
           <VStack marginBottom={6}>
             <Image height={150} borderRadius={9999} src="../assets/image.png" />
             <Heading color="white">Quimica Gr</Heading>
-            <Text color="white">
+            <Text color="white" textAlign="center">
               Venta de Productos de Limpieza y Belleza Corporal Online
             </Text>
             <Flex gap={3}>

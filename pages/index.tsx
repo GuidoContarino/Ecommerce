@@ -1,7 +1,7 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import React from "react";
 import { GetStaticProps } from "next";
-import { Button, Grid, Stack, Text, Flex, Divider } from "@chakra-ui/react";
+import { Grid, Stack, Text, Flex, Divider, Button } from "@chakra-ui/react";
 import Link from "next/link";
 import ProductCard from "../components/ProductCard";
 import ProductDrawer from "../components/ProductDrawer";
@@ -9,9 +9,15 @@ import { parseCurrency } from "../components/utils";
 import api from "@/product/api";
 import { Product } from "../product/types";
 import ProductFiltres from "../components/ProductFiltres";
+import { BsFillArrowDownCircleFill } from "react-icons/bs";
 
 interface Props {
   products: Product[];
+}
+
+interface CategoryState {
+  category: string;
+  isOpen: boolean;
 }
 
 const IndexRoute: React.FC<Props> = ({ products }) => {
@@ -20,6 +26,19 @@ const IndexRoute: React.FC<Props> = ({ products }) => {
   const [isProductDrawerOpen, setIsProductDrawerOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [categoryStates, setCategoryStates] = useState<CategoryState[]>([]);
+
+  // Initialize the category states based on the unique categories in products
+  useEffect(() => {
+    const categories = Array.from(
+      new Set(products.map((product) => product.category))
+    );
+    const initialCategoryStates = categories.map((category) => ({
+      category,
+      isOpen: true, // By default, all categories are open
+    }));
+    setCategoryStates(initialCategoryStates);
+  }, [products]);
 
   const handleOpenProductDrawer = (product: Product) => {
     setSelectedProduct(product);
@@ -32,6 +51,18 @@ const IndexRoute: React.FC<Props> = ({ products }) => {
 
   const handleCategoryChange = (category: string) => {
     setSelectedCategory(category);
+    setShowProducts(true);
+  };
+
+  const handleToggleProducts = (category: string) => {
+    setCategoryStates((prevStates) => {
+      const updatedStates = prevStates.map((state) =>
+        state.category === category
+          ? { ...state, isOpen: !state.isOpen }
+          : state
+      );
+      return updatedStates;
+    });
   };
 
   const filteredProducts = useMemo(() => {
@@ -56,8 +87,8 @@ const IndexRoute: React.FC<Props> = ({ products }) => {
     () => Array.from(new Set(products.map((product) => product.category))),
     [products]
   );
-  // Generación del texto para el pedido
-  const text = React.useMemo(
+
+  const text = useMemo(
     () =>
       cart
         .reduce(
@@ -84,15 +115,51 @@ const IndexRoute: React.FC<Props> = ({ products }) => {
         onCategoryChange={handleCategoryChange}
         categories={categories}
       />
-      <Grid templateColumns="repeat(auto-fill, minmax(240px,1fr))" gap={6}>
-        {filteredProducts.map((product) => (
-          <ProductCard
-            key={product.id}
-            product={product}
-            onClick={() => handleOpenProductDrawer(product)}
-          />
-        ))}
-      </Grid>
+
+      {categories.map((category) => {
+        const categoryProducts = filteredProducts.filter(
+          (product) => product.category === category
+        );
+
+        const categoryState = categoryStates.find(
+          (state) => state.category === category
+        );
+
+        if (categoryProducts.length > 0) {
+          return (
+            <Stack key={category}>
+              <Flex justifyContent="space-between" alignItems="center">
+                <Text fontSize="xl" fontWeight="bold" color="white">
+                  {category} ({categoryProducts.length})
+                </Text>
+                <BsFillArrowDownCircleFill
+                  onClick={() => handleToggleProducts(category)}
+                  color="white"
+                  size="1.5rem"
+                  cursor="pointer"
+                ></BsFillArrowDownCircleFill>
+              </Flex>
+              {categoryState?.isOpen && (
+                <Grid
+                  templateColumns="repeat(auto-fill, minmax(240px, 1fr))"
+                  gap={6}
+                >
+                  {categoryProducts.map((product) => (
+                    <ProductCard
+                      key={product.id}
+                      product={product}
+                      onClick={() => handleOpenProductDrawer(product)}
+                    />
+                  ))}
+                </Grid>
+              )}
+            </Stack>
+          );
+        }
+
+        return null;
+      })}
+
       <ProductDrawer
         isOpen={isProductDrawerOpen}
         onClose={handleCloseProductDrawer}
@@ -103,6 +170,7 @@ const IndexRoute: React.FC<Props> = ({ products }) => {
           }
         }}
       />
+
       {Boolean(cart.length) && (
         <Stack
           position="sticky"
@@ -122,10 +190,12 @@ const IndexRoute: React.FC<Props> = ({ products }) => {
           </Button>
         </Stack>
       )}
+
       <Divider />
+
       <Flex justifyContent="center">
-        <Text color="white">
-          © Copyright 2023. Creado Por -
+        <Text color="white" textAlign="center">
+          © 2023. Creado Por -
           <Link href="https://www.linkedin.com/in/guido-contarino/" passHref>
             Guido Contarino
           </Link>
