@@ -1,6 +1,6 @@
 import React from "react";
 import { Stack, Image, Text } from "@chakra-ui/react";
-import { Product } from "@/product/types";
+import { Product } from "@/components/product/types";
 
 interface ProductCardProps {
   product: Product;

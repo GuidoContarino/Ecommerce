@@ -14,7 +14,7 @@ import {
   Spacer,
   DrawerFooter,
 } from "@chakra-ui/react";
-import { Product } from "@/product/types";
+import { Product } from "@/components/product/types";
 
 interface ProductDrawerProps {
   isOpen: boolean;

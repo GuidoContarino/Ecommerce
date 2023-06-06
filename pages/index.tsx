@@ -6,8 +6,8 @@ import Link from "next/link";
 import ProductCard from "../components/ProductCard";
 import ProductDrawer from "../components/ProductDrawer";
 import { parseCurrency } from "../components/utils";
-import api from "@/product/api";
-import { Product } from "../product/types";
+import api from "@/components/product/api";
+import { Product } from "../components/product/types";
 import ProductFiltres from "../components/ProductFiltres";
 import { IoIosArrowDown } from "react-icons/io";
 
