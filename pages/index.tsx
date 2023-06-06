@@ -1,15 +1,15 @@
-import { useState, useMemo, useEffect } from "react";
 import React from "react";
+import { useState, useMemo, useEffect } from "react";
 import { GetStaticProps } from "next";
-import { Grid, Stack, Text, Flex, Divider, Button } from "@chakra-ui/react";
-import Link from "next/link";
-import ProductCard from "../components/ProductCard";
+import { Stack } from "@chakra-ui/react";
+import CategoryList from "../components/CategoryList";
 import ProductDrawer from "../components/ProductDrawer";
 import { parseCurrency } from "../components/utils";
 import api from "@/components/product/api";
 import { Product } from "../components/product/types";
 import ProductFiltres from "../components/ProductFiltres";
-import { IoIosArrowDown } from "react-icons/io";
+import CartSticky from "../components/CartSticky";
+import Footer from "../components/Footer";
 
 interface Props {
   products: Product[]; // Propiedad que representa la lista de productos
@@ -139,88 +139,21 @@ const IndexRoute: React.FC<Props> = ({ products }) => {
         onCategoryChange={handleCategoryChange}
         categories={categories}
       />
-
-      {categories.map((category) => {
-        const categoryProducts = filteredProducts.filter(
-          (product) => product.category === category
-        );
-
-        const categoryState = categoryStates.find(
-          (state) => state.category === category
-        );
-
-        if (categoryProducts.length > 0) {
-          return (
-            <Stack key={category}>
-              <Flex justifyContent="space-between" alignItems="center">
-                <Text fontSize="xl" fontWeight="bold" color="white">
-                  {category} ({categoryProducts.length})
-                </Text>
-                <IoIosArrowDown
-                  onClick={() => handleToggleProducts(category)}
-                  color="white"
-                  size="1.5rem"
-                  cursor="pointer"
-                ></IoIosArrowDown>
-              </Flex>
-              {categoryState?.isOpen && (
-                <Grid
-                  templateColumns="repeat(auto-fill, minmax(240px, 1fr))"
-                  gap={6}
-                >
-                  {categoryProducts.map((product) => (
-                    <ProductCard
-                      key={product.id}
-                      product={product}
-                      onClick={() => handleOpenProductDrawer(product)}
-                    />
-                  ))}
-                </Grid>
-              )}
-            </Stack>
-          );
-        }
-
-        return null;
-      })}
-
+      <CategoryList
+        categories={categories}
+        filteredProducts={filteredProducts}
+        categoryStates={categoryStates}
+        handleToggleProducts={handleToggleProducts}
+        handleOpenProductDrawer={handleOpenProductDrawer}
+      />
       <ProductDrawer
         isOpen={isProductDrawerOpen}
         onClose={handleCloseProductDrawer}
         product={selectedProduct}
         onAddToCart={handleAddToCart}
       />
-
-      {Boolean(cart.length) && (
-        <Stack
-          position="sticky"
-          bottom={4}
-          alignItems="center"
-          justifyContent="center"
-        >
-          <Button
-            as="a"
-            width="fit-content"
-            colorScheme="whatsapp"
-            href={`https://wa.me/5491131066937?text=QuimicaGr-Pedido:${encodeURIComponent(
-              text
-            )}`}
-          >
-            Completar Pedido ({cart.length} productos)
-          </Button>
-        </Stack>
-      )}
-      <Divider />
-
-      <Flex justifyContent="center">
-        <Text color="white" textAlign="center">
-          © 2023. Creado Por -
-          <Link href="https://www.linkedin.com/in/guido-contarino/" passHref>
-            Guido Contarino
-          </Link>
-          - para Quimica Gr
-        </Text>
-      </Flex>
+      <CartSticky cart={cart} text={text} />
+      <Footer />
     </Stack>
   );
 };

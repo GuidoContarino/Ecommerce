@@ -1,4 +1,4 @@
-import { background, extendTheme, theme } from "@chakra-ui/react";
+import { extendTheme, theme } from "@chakra-ui/react";
 
 export default extendTheme({
     colors: {
