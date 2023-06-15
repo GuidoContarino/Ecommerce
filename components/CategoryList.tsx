@@ -2,8 +2,22 @@ import React from "react";
 import { Stack, Flex, Text, Grid } from "@chakra-ui/react";
 import { IoIosArrowDown } from "react-icons/io";
 import ProductCard from "./ProductCard";
+import { Product } from "@/components/product/types";
 
-const CategoryList = ({
+interface CategoryState {
+  category: string;
+  isOpen: boolean;
+}
+
+interface Props {
+  categories: string[];
+  filteredProducts: Product[];
+  categoryStates: CategoryState[];
+  handleToggleProducts: (category: string) => void;
+  handleOpenProductDrawer: (product: Product) => void;
+}
+
+const CategoryList: React.FC<Props> = ({
   categories,
   filteredProducts,
   categoryStates,
