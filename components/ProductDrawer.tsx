@@ -13,14 +13,18 @@ import {
   Button,
   Spacer,
   DrawerFooter,
+  Badge,
+  Container,
 } from "@chakra-ui/react";
 import { Product } from "@/components/product/types";
+import { AiOutlineShoppingCart } from "react-icons/ai";
 
 interface ProductDrawerProps {
   isOpen: boolean;
   onClose: () => void;
   product: Product | null;
   onAddToCart: (quantity: number) => void;
+  cartQuantity: number;
 }
 
 const ProductDrawer: React.FC<ProductDrawerProps> = ({
@@ -28,6 +32,7 @@ const ProductDrawer: React.FC<ProductDrawerProps> = ({
   onClose,
   product,
   onAddToCart,
+  cartQuantity,
 }) => {
   const [quantity, setQuantity] = useState(1);
   const [totalPrice, setTotalPrice] = useState(0);
@@ -60,6 +65,20 @@ const ProductDrawer: React.FC<ProductDrawerProps> = ({
           height="4rem"
         />
         <DrawerHeader>
+          <Flex align="center" margin={1.5}>
+            <AiOutlineShoppingCart size="3rem" color="white" />
+            <Badge
+              backgroundColor="black"
+              color="white"
+              fontSize="xl"
+              marginLeft={2}
+              borderRadius="full"
+              paddingX={2}
+              paddingY={1}
+            >
+              {cartQuantity}
+            </Badge>
+          </Flex>
           <Image
             width="100%"
             borderRadius="md"
@@ -68,17 +87,17 @@ const ProductDrawer: React.FC<ProductDrawerProps> = ({
             src={product?.image}
             alt={product?.title}
           />
-        </DrawerHeader>
-        <DrawerBody>
-          <Text fontSize="2xl" margin={4} color="white">
+          <Text fontSize="2xl" color="white" margin={2}>
             {product?.title}
           </Text>
-          <Text fontSize="xl" margin={4} marginTop={5} color="gray.400">
+        </DrawerHeader>
+        <DrawerBody>
+          <Text fontSize="xl" margin={3} marginTop={2} color="gray.400">
             {product?.description}
           </Text>
 
           <Flex alignItems="center" marginTop={4}>
-            <Text fontSize="xl" margin={4} color="white">
+            <Text fontSize="xl" margin={3} color="white">
               Cantidad:
             </Text>
             <Button
@@ -90,7 +109,7 @@ const ProductDrawer: React.FC<ProductDrawerProps> = ({
             >
               -
             </Button>
-            <Text fontSize="xl" margin={4} color="white">
+            <Text fontSize="xl" margin={3} color="white">
               {quantity}
             </Text>
             <Button
@@ -104,11 +123,11 @@ const ProductDrawer: React.FC<ProductDrawerProps> = ({
           </Flex>
           <Divider />
           <Flex>
-            <Text fontSize="xl" margin={4} color="white">
+            <Text fontSize="xl" margin={3} color="white">
               Total
             </Text>
             <Spacer />
-            <Text fontSize="xl" margin={4} color="white">
+            <Text fontSize="xl" margin={3} color="white">
               $ {totalPrice.toLocaleString()}
             </Text>
           </Flex>

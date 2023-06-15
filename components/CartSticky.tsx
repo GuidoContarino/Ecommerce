@@ -3,7 +3,7 @@ import { Button, Stack } from "@chakra-ui/react";
 import { Product } from "./product/types";
 
 interface CartStickyProps {
-  cart: Product[]; // Reemplaza "Product" con el tipo de tus productos
+  cart: Product[];
   text: string;
 }
 

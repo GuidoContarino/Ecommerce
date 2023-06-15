@@ -2,6 +2,8 @@ import React from "react";
 import { useState, useMemo, useEffect } from "react";
 import { GetStaticProps } from "next";
 import { Stack } from "@chakra-ui/react";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import CategoryList from "../components/CategoryList";
 import ProductDrawer from "../components/ProductDrawer";
 import { parseCurrency } from "../components/utils";
@@ -28,6 +30,15 @@ const IndexRoute: React.FC<Props> = ({ products }) => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null); // Estado que almacena la categoría seleccionada para filtrar los productos
   const [categoryStates, setCategoryStates] = useState<CategoryState[]>([]); // Estado que almacena la información de cada categoría
   const [cartQuantity, setCartQuantity] = useState<number>(0); // Estado que almacena la cantidad de productos en el carrito
+
+  // Estado para la notificación
+  const [notification, setNotification] = useState<{
+    show: boolean;
+    message: string;
+  }>({
+    show: false,
+    message: "",
+  });
 
   // Inicializa el estado de las categorías basado en las categorías únicas de los productos
   useEffect(() => {
@@ -77,7 +88,12 @@ const IndexRoute: React.FC<Props> = ({ products }) => {
         quantity: quantity,
       };
       setCart((cart) => [...cart, productWithQuantity]); // Agrega el producto al carrito
-      setCartQuantity(quantity); // Actualiza la cantidad de productos en el carrito
+      setCartQuantity((prevQuantity) => prevQuantity + quantity); // Actualiza la cantidad de productos en el carrito
+
+      // Muestra la notificación
+      toast.success(`Producto agregado al carrito: ${selectedProduct.title}`, {
+        autoClose: 3000,
+      });
     }
   };
 
@@ -151,9 +167,12 @@ const IndexRoute: React.FC<Props> = ({ products }) => {
         onClose={handleCloseProductDrawer}
         product={selectedProduct}
         onAddToCart={handleAddToCart}
+        cartQuantity={cartQuantity}
       />
       <CartSticky cart={cart} text={text} />
       <Footer />
+      {notification.show && <div>{notification.message}</div>}
+      <ToastContainer position="top-right" />
     </Stack>
   );
 };
