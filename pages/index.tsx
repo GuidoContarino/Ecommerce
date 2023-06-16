@@ -169,7 +169,7 @@ const IndexRoute: React.FC<Props> = ({ products }) => {
         onAddToCart={handleAddToCart}
         cartQuantity={cartQuantity}
       />
-      <CartSticky cart={cart} text={text} />
+      <CartSticky cartQuantity={cartQuantity} text={text} />
       <Footer />
       {notification.show && <div>{notification.message}</div>}
       <ToastContainer position="top-right" />

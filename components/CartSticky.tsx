@@ -1,16 +1,15 @@
 import React from "react";
 import { Button, Stack } from "@chakra-ui/react";
-import { Product } from "./product/types";
 
 interface CartStickyProps {
-  cart: Product[];
+  cartQuantity: number;
   text: string;
 }
 
-function CartSticky({ cart, text }: CartStickyProps) {
+const CartSticky: React.FC<CartStickyProps> = ({ cartQuantity, text }) => {
   return (
     <>
-      {Boolean(cart.length) && (
+      {cartQuantity > 0 && (
         <Stack
           position="sticky"
           bottom={4}
@@ -25,12 +24,12 @@ function CartSticky({ cart, text }: CartStickyProps) {
               text
             )}`}
           >
-            Completar Pedido ({cart.length} productos)
+            Completar Pedido ({cartQuantity} productos)
           </Button>
         </Stack>
       )}
     </>
   );
-}
+};
 
 export default CartSticky;
