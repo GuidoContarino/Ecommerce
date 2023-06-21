@@ -1,16 +1,11 @@
 import React from "react";
 import { Stack, Image, Text } from "@chakra-ui/react";
 import { Product } from "@/components/product/types";
+import { parseCurrency } from "./utils";
 
 interface ProductCardProps {
   product: Product;
   onClick: () => void;
-}
-function parseCurrency(value: number): string {
-  return value.toLocaleString("es-Ar", {
-    style: "currency",
-    currency: "ARS",
-  });
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ product, onClick }) => {
