@@ -1,5 +1,4 @@
-import React from "react";
-import { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { GetStaticProps } from "next";
 import { Stack } from "@chakra-ui/react";
 import { ToastContainer, toast } from "react-toastify";
@@ -14,24 +13,22 @@ import CartSticky from "../components/CartSticky";
 import Footer from "../components/Footer";
 
 interface Props {
-  products: Product[]; // Propiedad que representa la lista de productos
+  products: Product[];
 }
 
 interface CategoryState {
-  category: string; // Nombre de la categoría
-  isOpen: boolean; // Indica si la categoría está abierta o cerrada en el filtro
+  category: string;
+  isOpen: boolean;
 }
 
 const IndexRoute: React.FC<Props> = ({ products }) => {
-  const [cart, setCart] = useState<Product[]>([]); // Estado que representa el carrito de compras
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null); // Estado que representa el producto seleccionado en el cajón de productos
-  const [isProductDrawerOpen, setIsProductDrawerOpen] = useState(false); // Estado que indica si el cajón de productos está abierto o cerrado
-  const [searchTerm, setSearchTerm] = useState(""); // Estado que almacena el término de búsqueda para filtrar los productos
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null); // Estado que almacena la categoría seleccionada para filtrar los productos
-  const [categoryStates, setCategoryStates] = useState<CategoryState[]>([]); // Estado que almacena la información de cada categoría
-  const [cartQuantity, setCartQuantity] = useState<number>(0); // Estado que almacena la cantidad de productos en el carrito
-
-  // Estado para la notificación
+  const [cart, setCart] = useState<Product[]>([]);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [isProductDrawerOpen, setIsProductDrawerOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [categoryStates, setCategoryStates] = useState<CategoryState[]>([]);
+  const [cartQuantity, setCartQuantity] = useState<number>(0);
   const [notification, setNotification] = useState<{
     show: boolean;
     message: string;
@@ -44,7 +41,7 @@ const IndexRoute: React.FC<Props> = ({ products }) => {
   useEffect(() => {
     const categories = Array.from(
       new Set(products.map((product) => product.category))
-    ); // Obtiene las categorías únicas de los productos
+    );
     const initialCategoryStates = categories.map((category) => ({
       category,
       isOpen: true, // Por defecto, todas las categorías están abiertas
@@ -178,12 +175,12 @@ const IndexRoute: React.FC<Props> = ({ products }) => {
 };
 
 export const getStaticProps: GetStaticProps = async () => {
-  const products = await api.list(); // Obtiene la lista de productos utilizando la función `list` de la API
+  const products = await api.list();
 
   return {
-    revalidate: 10, // Indica que esta página debe ser regenerada cada 10 segundos
+    revalidate: 10,
     props: {
-      products, // Proporciona los productos como propiedades al componente `IndexRoute`
+      products,
     },
   };
 };
